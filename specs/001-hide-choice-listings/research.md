@@ -104,13 +104,20 @@ reverse*: not possible, because there is no exclude option.
   between the browsers: Firefox does not support `background.service_worker` and needs
   `background.scripts` instead ([MDN](https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/background),
   [Mozilla blog](https://blog.mozilla.org/addons/?p=9142)).
-- Firefox needs `browser_specific_settings.gecko.id` (for signing and stable storage). Chrome
-  ignores that key with a harmless "unrecognized manifest key" warning. One manifest is simpler
+- Firefox needs `browser_specific_settings.gecko.id` (for signing and stable storage). It also
+  needs `gecko.data_collection_permissions: { required: ["none"] }`, which Mozilla requires of new
+  extensions it signs (unlisted ones included), and which states FR-017 in the manifest. Check the
+  exact key against current MDN at implementation time; `web-ext lint` must accept it. Chrome
+  ignores the whole `browser_specific_settings` key with a harmless "unrecognized manifest key"
+  warning. One manifest is simpler
   than generating one per browser.
 
 **Permissions** (smallest possible set, store-ready):
 `"permissions": ["storage"]`, plus `host_permissions` and `content_scripts.matches` for
-`*://*.aliexpress.com/*`, `*://*.aliexpress.us/*`, `*://*.aliexpress.ru/*`.
+`*://*.aliexpress.com/*` and `*://*.aliexpress.us/*` (the `*.` form also covers the bare domain
+and every country subdomain such as `es.aliexpress.com`). `aliexpress.ru` is deliberately left out
+(spec FR-007/FR-018): it is run separately with its own markup, so the extension asks for no access
+there.
 `host_permissions` repeats the match patterns so that (a) Firefox MV3 grants the content script
 access at install, and (b) the popup can read the active tab's URL to tell "not AliExpress" apart
 from "AliExpress, but the page was opened before installing". No `tabs`, `activeTab`,
@@ -191,10 +198,11 @@ checklist in quickstart). This is also the procedure to follow whenever AliExpre
 markup. It is expected maintenance (spec Assumptions).
 
 **Required fixture set** (feeds SC-001/SC-002): search results, category page, store page,
-homepage feed, product page "More to love"/"Related items", and at least two regional variants
-(e.g. `aliexpress.com` in EUR, `aliexpress.us`). If `aliexpress.ru` uses separate markup that
-matches no signature, the fail-safe means nothing is hidden there. That is acceptable but must be
-recorded in the fixture notes.
+homepage feed, product page "More to love"/"Related items", and three regional variants that
+together cover **two languages and three currencies**: `aliexpress.com` (English, EUR),
+`aliexpress.us` (English, USD), and `pl.aliexpress.com` (Polish, PLN). The non-English fixture
+shows that the signatures really are locale-independent (FR-007). `aliexpress.ru` is out of scope
+and needs no fixture.
 
 **Alternatives considered**: hard-coded selectors spread through the code (brittle, and every
 markup change would mean code changes; rejected). Matching on AliExpress's hashed CSS-module class

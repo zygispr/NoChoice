@@ -23,9 +23,37 @@ protection. See [research.md § R2](./research.md#r2-can-the-product-listing-use
 
 **Language/Version**: TypeScript 5.x (strict), on Node.js 24 LTS (toolchain only)
 
-**Primary Dependencies**: React 19.x (popup only), Vite 7.x+ with Sass (dart-sass), `@types/chrome`.
-Dev: ESLint (flat config, typescript-eslint, react-hooks, jsx-a11y, eslint-config-prettier),
-Prettier, Vitest, jsdom, React Testing Library, vitest-axe, Playwright, web-ext
+**Primary Dependencies**: the complete list. Adding any package means updating this table
+first (constitution: "every new dependency is justified in the plan").
+
+| Package | Kind | Why it is needed |
+|---|---|---|
+| `react`, `react-dom` (19.x) | runtime (popup only) | User-mandated UI library for the toolbar popup (research R7) |
+| `vite` (**7.x**, pinned major) | dev | User-mandated build tool for the popup and content script bundles (R6). Pinned because T007 relies on Vite 7's library-mode CSS naming and esbuild minifier options; moving to a later major means re-checking those first |
+| `@vitejs/plugin-react` | dev | Vite's JSX transform for the React popup |
+| `sass` | dev | Compiles the user-mandated SCSS (Vite's Sass peer dependency) |
+| `typescript` | dev | User-mandated type safety, `tsc --noEmit` gate |
+| `@types/chrome`, `@types/react`, `@types/react-dom` | dev | Type definitions for the extension APIs and React |
+| `@types/node` | dev | Types for the Node APIs (`fs`, `crypto`, `zlib`, `path`) used by tests, the Playwright harness, build scripts, and `*.config.ts`. Only loaded by `tsconfig.node.json`, never by `src/` |
+| `eslint`, `@eslint/js` | dev | User-mandated linter. `@eslint/js` provides the core recommended rules the flat config needs |
+| `typescript-eslint` | dev | Type-aware lint rules (`strictTypeChecked`) |
+| `eslint-plugin-react-hooks` | dev | Catches hook misuse in the popup |
+| `eslint-plugin-jsx-a11y` | dev | Static accessibility checks toward WCAG 2.2 AA (FR-019) |
+| `globals` | dev | Browser and Node global definitions for the ESLint flat config |
+| `eslint-config-prettier` | dev | Turns off ESLint rules that conflict with Prettier |
+| `prettier` | dev | User-mandated formatter |
+| `vitest` | dev | Unit, contract, and component test runner, Vite-native (R9) |
+| `@vitest/coverage-v8` | dev | Coverage reports and the 80% line threshold the constitution requires |
+| `jsdom` | dev | DOM environment for Vitest (fixture-based content-script tests) |
+| `@testing-library/react` | dev | Renders popup components through their public interface |
+| `@testing-library/user-event` | dev | Realistic keyboard and pointer input for the FR-019 keyboard tests |
+| `@testing-library/jest-dom` | dev | DOM assertions (`toBeChecked`, `toHaveAccessibleName`, …) for readable tests |
+| `vitest-axe` | dev | Automated axe accessibility checks in component tests (FR-019) |
+| `@playwright/test` | dev | E2E tests with the unpacked extension loaded in Chromium (R9) |
+| `web-ext` | dev | Firefox manifest lint, run, and unlisted signing (R8, R10) |
+
+No other runtime dependencies. The `dev` workflow uses two npm scripts (`dev:popup`,
+`dev:content`) run in separate terminals, not a task-runner package.
 
 **Storage**: `chrome.storage.local` holds one versioned `settings` object
 ([contracts/settings-storage.md](./contracts/settings-storage.md)). Per-page state is in memory
@@ -43,11 +71,22 @@ APIs).
 
 **Performance Goals**:
 
-- Classifying one batch of ≤ 60 newly added cards: **≤ 2 ms** p95 (dev laptop, Vitest bench), and
-  no main-thread task over **50 ms** caused by the content script while scrolling through 500 cards
-  (SC-004).
-- Content script work at page load: **≤ 10%** added time to the page becoming usable (SC-004),
-  measured by comparing Playwright traces with and without the extension on the same fixture.
+- Classifying one batch of ≤ 60 newly added cards: **≤ 2 ms** p95, and no main-thread task over
+  **50 ms** caused by the content script while scrolling through 500 cards (SC-004).
+- Content script work at page load: **≤ 10%** added time to the page becoming usable (SC-004).
+  "Usable" means the first animation frame in which the primary results container shows at least
+  one visible card.
+
+**How budgets are enforced (deterministic gate)**: `npm run test:perf` runs in CI, on the same
+runner type every time. The constitution blocks merge on a regression "beyond 10% of the agreed
+budget", so each gate fails only above **budget × 1.10**: classify p95 > **2.2 ms**, any content
+script task > **55 ms**, settings-change latency > **55 ms**. Each value is the **median of 5
+repeated measurements** (each measurement = 50 runs after 10 warm-up runs), which makes a pass or
+fail stable. Real code is expected to sit far below the budgets, and the test prints the measured
+values beside them. For page-load overhead (`usable` time with the extension minus without,
+median of 7 runs each), the gate is **> 10% of the no-extension time *and* > 16 ms**. The 16 ms
+(one frame) floor stops timer noise on a fast local fixture from failing the build; on the live
+site, where pages take seconds, the 10% rule is the one that bites (checked by hand in quickstart V12).
 - Settings change or reveal → page updated: **≤ 50 ms** (spec limit 1 s, FR-011/SC-006).
 - Popup open → interactive with count shown: **≤ 100 ms** (constitution interactive budget).
 - Bundle sizes: content script **≤ 20 KB** minified (no framework). Popup **≤ 100 KB** gzipped.
@@ -59,7 +98,8 @@ stays visible (FR-016). Never act on non-AliExpress sites (FR-018). WCAG 2.2 AA 
 
 **Scale/Scope**: one shopper and browser profile. Pages with up to about 500 listings loaded per
 session (SC-004). 2 badge types, 1 settings object, 1 popup screen with 5 UI states, 1 in-page
-notice. About 6 page types × 3 regional domains of AliExpress markup to recognise.
+notice. About 6 page types × 2 supported domains (`aliexpress.com` with its country subdomains,
+and `aliexpress.us`) of AliExpress markup to recognise. `aliexpress.ru` is out of scope.
 
 ## Constitution Check
 
@@ -71,7 +111,7 @@ notice. About 6 page types × 3 regional domains of AliExpress markup to recogni
 | **II. Simplicity** | Every dependency or layer justified. YAGNI. | ✅ No backend, no background script, no state library, no router, no extension framework (R1, R3, R6). React, atomic design, and SCSS are user-mandated → Complexity Tracking. | ✅ Design adds only what the FRs need: one storage key, one port protocol, one root attribute. Infinite scroll deferred (R2). |
 | **III. Testing (NON-NEGOTIABLE)** | Test-first. E2E per user story. Contract tests at boundaries. | ✅ Vitest/RTL/Playwright stack chosen (R9). | ✅ Boundaries with contracts: AliExpress markup (fixture contract), storage schema, popup↔content messages. E2E for US1–US3 in Chromium. Firefox parity is a manual check (see Complexity Tracking). |
 | **IV. Great UX** | User-perspective states, immediate feedback, WCAG 2.2 AA, no lost data. | ✅ Spec covers primary, empty (all hidden), off, not-AliExpress, and error states. | ✅ Popup UI contract lists every state, including "reload needed" and "settings couldn't be saved". The notice is keyboard-reachable and announced through `role="status"`. Settings persist (FR-014). Shared SCSS tokens keep the popup and notice consistent. |
-| **V. Performance** | Measurable budgets plus automated perf tests. | ✅ Budgets above. | ✅ O(1) setting toggles (root attribute). Observer processes only added nodes. Bench + trace tests in `tests/perf/`. |
+| **V. Performance** | Measurable budgets plus automated perf tests. | ✅ Budgets above. | ✅ O(1) setting toggles (root attribute). Observer processes only added nodes. Bench + trace tests in `tests/perf/` run in CI as a merge gate (`npm run test:perf`, added by T078), so a > 10% budget regression blocks merge. |
 | **VI. Scalability** | Bounded collections, versioned schemas, observability. | ✅ No unbounded caches: state lives on DOM attributes, which are freed with the nodes. | ✅ `settings.version` and message `type` names are versioned with a migration rule. Observability exception (no telemetry, by FR-017) → Complexity Tracking. |
 
 **Result**: PASS (pre- and post-design). The deviations below are justified.

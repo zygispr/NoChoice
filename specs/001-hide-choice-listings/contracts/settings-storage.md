@@ -37,7 +37,10 @@ Single key `settings`:
    ≤ 50 ms).
 5. **Write failures** (e.g. quota or a storage error) are shown in the popup as the "couldn't
    save" state ([popup-ui.md](./popup-ui.md)). The switch reverts to the last stored value.
-6. **No other data.** No other keys may be written (FR-017).
+6. **Read failures** (`storage.local.get` rejects). The content script falls back to defaults
+   silently, because it has no UI and must never break the page. The popup falls back to defaults
+   **and** shows the "couldn't load" state ([popup-ui.md](./popup-ui.md)).
+7. **No other data.** No other keys may be written (FR-017).
 
 ## Versioning and migration
 

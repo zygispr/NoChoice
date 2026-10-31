@@ -16,6 +16,7 @@
 - Q: Is the extension being published to browser add-on stores, or only for personal use? → A: Personal use for v1 (installed from the project folder), kept ready to publish later.
 - Q: Should v1 let the shopper hide "Choice" and "Brand+" separately, or offer one switch for both? → A: Separate per-badge switches in v1 (User Story 3 stays in scope).
 - Q: When all listings on a page are hidden and the shopper clicks "show them", how long do they stay visible? → A: Only on the current page; hiding resumes on navigating elsewhere or reloading.
+- Q: Should the extension work on aliexpress.ru? → A: No. aliexpress.ru is out of scope; the extension does nothing there.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -77,7 +78,7 @@ A shopper may want to hide only one kind of badge, for example hide "Choice" lis
 - **A listing carries both "Choice" and another tag (e.g., "11.11 Sale")**: it is hidden, because it carries a "Choice" badge.
 - **The shopper opens a Choice or Brand+ product's own page directly** (from a link, bookmark, or order history): the product page is shown normally. Only listings are hidden, never whole pages.
 - **AliExpress changes its page design so badges can no longer be recognised**: the extension hides nothing it isn't sure about. Showing an unwanted listing is acceptable; hiding a wanted one is not.
-- **Regional AliExpress sites and languages** (e.g., aliexpress.com in EUR, aliexpress.us, other country sites): hiding works the same on all of them, whatever the display language or currency.
+- **Regional AliExpress sites and languages** (e.g., aliexpress.com in EUR, aliexpress.us, country sites such as es.aliexpress.com or pl.aliexpress.com): hiding works the same on all of them, whatever the display language or currency. aliexpress.ru is not supported: the extension leaves it untouched.
 - **Pages that mix listings into other content** (homepage feeds, "More to love", "Related items" on a product page): matching listings in these sections are hidden too, and the surrounding layout stays intact.
 - **Very long infinite-scroll sessions** (hundreds of listings loaded): hiding keeps up and scrolling does not become noticeably slower.
 
@@ -91,7 +92,7 @@ A shopper may want to hide only one kind of badge, for example hide "Choice" lis
 - **FR-004**: When a listing is hidden, the remaining listings MUST close the gap so that no empty slot is left where the hidden listing was.
 - **FR-005**: The extension MUST apply hiding to listings that appear after the initial page load (infinite scroll, pagination, filtering, sorting, and recommendation sections that load later) without the shopper having to reload the page.
 - **FR-006**: Hidden listings MUST NOT be visibly shown to the shopper before they are hidden. Newly appearing matching listings MUST be hidden before they are rendered on screen, or within the same visual frame.
-- **FR-007**: The extension MUST work on all AliExpress regional sites and in all display languages and currencies.
+- **FR-007**: The extension MUST work on all supported AliExpress sites, in all display languages and currencies. Supported sites are aliexpress.com with all its country subdomains (e.g., www., es., pl.) and aliexpress.us. aliexpress.ru is not supported.
 - **FR-008**: The extension MUST hide listings on every AliExpress page type that shows product listings, including search results, category pages, store pages, the homepage feed, and recommendation sections on product pages.
 - **FR-009**: The extension MUST NOT hide, block, or redirect a product's own detail page; it acts only on listings.
 - **FR-010**: Hiding MUST be on by default for both badge types immediately after installation, with no setup required.
@@ -102,7 +103,7 @@ A shopper may want to hide only one kind of badge, for example hide "Choice" lis
 - **FR-015**: When all listings in a page's results area are hidden, the extension MUST show a brief notice in that area explaining why it is empty and offering a one-click way to show the hidden listings for that page. The reveal MUST apply only to the current page: listings that load later on the same page (e.g., by scrolling) are shown too. The reveal MUST NOT change the shopper's saved settings. Hiding MUST resume when the page is reloaded or the shopper moves to different results (a new search, filter, sort, results page number, or another AliExpress page).
 - **FR-016**: When the extension cannot confidently tell whether a listing has a "Choice" or "Brand+" badge, it MUST leave the listing visible.
 - **FR-017**: The extension MUST NOT collect, store, or send any browsing data, product data, or personal information anywhere. The only data it keeps is the shopper's own settings, stored locally.
-- **FR-018**: The extension MUST be active only on AliExpress sites. On any other website it MUST do nothing to the page.
+- **FR-018**: The extension MUST be active only on supported AliExpress sites (FR-007). On any other website, including aliexpress.ru, it MUST do nothing to the page.
 - **FR-019**: The extension's toolbar control MUST be fully usable by keyboard and screen reader and meet WCAG 2.2 AA contrast.
 - **FR-020**: The extension MUST behave identically, meeting every requirement above, in current desktop Chromium-based browsers (Chrome, Edge, Brave, and similar) and current desktop Firefox.
 
@@ -129,6 +130,7 @@ A shopper may want to hide only one kind of badge, for example hide "Choice" lis
 - **Target browsers**: desktop Chromium-based browsers (Chrome, Edge, Brave, and similar) and desktop Firefox are the v1 targets (FR-020). Safari is out of scope for v1 but a likely future target, so v1 should avoid choices that would block a later Safari version. Mobile browsers and the AliExpress mobile app are out of scope.
 - **Hide means remove from view**: listings are removed from the layout entirely, not dimmed or blurred, because the shopper said they always skip these listings. The on/off switch (User Story 2) covers occasions when they want to see them.
 - **Badge identity**: the "Choice" and "Brand+" badges look the same across AliExpress regional sites and languages, as in the shopper's screenshot (yellow "Choice" label and blue "Brand+" label before the listing title), so they can be recognised regardless of locale.
+- **aliexpress.ru is out of scope**: it is run separately from the other AliExpress sites, with its own page design. The extension does not request access to it and does nothing there.
 - **Ads and other tags are out of scope**: listings marked "Ad", "11.11 Sale", "Bundle deals", etc. are not hidden unless they also carry a "Choice" or "Brand+" badge. Hiding other badge types may be added later but is not part of this feature.
 - **Filtering, not removal**: the extension only changes what is shown on the shopper's own screen. It does not change AliExpress search results or the shopper's account, and it does not affect what other people see.
 - **Distribution**: v1 is for personal use, installed straight from the project folder in each supported browser. Publishing to the Chrome Web Store or Firefox Add-ons (store listing, screenshots, privacy policy, review) is out of scope for v1. v1 should still meet store rules so it can be published later without redesign: it asks only for the permissions it needs, has an icon and a clear name, and collects no data (FR-017).

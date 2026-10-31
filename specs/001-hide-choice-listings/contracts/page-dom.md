@@ -7,7 +7,7 @@ The extension's footprint on AliExpress pages. Anything not listed here must not
 
 | Item | Value |
 |---|---|
-| Matches | `*://*.aliexpress.com/*`, `*://*.aliexpress.us/*`, `*://*.aliexpress.ru/*` (FR-007, FR-018) |
+| Matches | `*://*.aliexpress.com/*`, `*://*.aliexpress.us/*` (FR-007, FR-018). `aliexpress.ru` is deliberately excluded |
 | `run_at` | `document_start` (FR-006) |
 | `all_frames` | `false` (listings are in the top document) |
 | Script | `content.js` (IIFE, no framework) |
@@ -36,14 +36,25 @@ html[data-nochoice-hide~="brand-plus"] [data-nochoice-badges~="brand-plus"] {
 
 ## "All listings hidden" notice (FR-015)
 
-- **Shown when**: hiding is active, not revealed, and **every** classified card in a listing
-  container is hidden (at least one card).
+- **Shown when** all of these hold:
+  1. The container is a **primary results** container (`isPrimaryResults: true`: search,
+     category, and store result grids). Sponsored rows ("Premium sponsored items"), the homepage
+     feed, and product-page recommendations **never** get a notice. A short row or carousel that
+     happens to be all Choice is not an "empty results area" (spec FR-015).
+  2. Hiding is active and the page is not revealed.
+  3. **Every** classified card in that container is hidden (at least one card).
+  4. Conditions 1–3 have held for **500 ms with no new cards** added to that container. Results
+     render lazily, so a first batch that happens to be all Choice must not flash a notice before
+     the rest arrive.
 - **Placement**: one notice per affected container, inserted as that container's previous
   sibling. A custom element host `<nochoice-notice>` with an **open shadow root**. Styles come
   from `allHiddenNotice.scss` (shared tokens) and sit inside the shadow root.
 - **Content and semantics**:
   - Container `role="status"` so screen readers announce it once.
-  - Text: "All *N* listings on this page were hidden by NoChoice (Choice / Brand+)."
+  - Text: "All *N* listings in these results were hidden by NoChoice (*badges*)." *N* is the
+    number of hidden cards **in that container**. *badges* lists the labels (`BADGE_LABELS`) of
+    the badge types that are **currently hidden**, joined with " and ". Examples: "(Choice and
+    Brand+)" with both hidden, "(Choice)" with only Choice hidden.
   - A `<button>`: "Show hidden listings". Keyboard focusable, with a visible focus ring, and
     WCAG 2.2 AA contrast (FR-019 applies to all extension UI).
 - **Button action**: sets `PageState.revealed = true`, removes `html[data-nochoice-hide]`, and

@@ -23,9 +23,10 @@ tabs.
 | **Active** | AliExpress tab, status received, hiding on | "**N** hidden on this page" with a per-badge breakdown, e.g. "Choice 12 · Brand+ 3". When N = 0: "Nothing hidden on this page" |
 | **Active, hiding off** | AliExpress tab, master off | "Hiding is off. All listings are shown." |
 | **Active, revealed** | AliExpress tab, page revealed via the notice | "Showing hidden listings on this page. They'll be hidden again when you reload or change results." |
-| **Not AliExpress** | Active tab isn't an AliExpress host | "NoChoice only works on AliExpress." (no count; US2 scenario 5) |
+| **Not AliExpress** | Active tab isn't a supported AliExpress host (`aliexpress.ru` counts as unsupported) | "NoChoice only works on AliExpress." (no count; US2 scenario 5) |
 | **Reload needed** | AliExpress tab but no content script answered | "Reload this AliExpress page to start hiding listings." |
 | **Couldn't save** | `storage.local.set` rejected | Inline message beside the changed switch: "Couldn't save this setting. Please try again." The switch reverts |
+| **Couldn't load** | `storage.local.get` rejected when the popup opens | Message at the top of the settings area: "Couldn't load your settings, so the defaults are shown. Changing a switch will try to save again." Switches show `DEFAULT_SETTINGS` and stay usable |
 
 The count updates live while the popup is open ([messaging.md](./messaging.md)).
 

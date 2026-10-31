@@ -44,7 +44,9 @@ published.
 
 1. In a **normal** desktop browser session (automated browsers get a reduced, anti-bot page),
    open each page type: search, category, store, homepage, product page with "More to love", on
-   at least two regional sites (e.g. `aliexpress.com` in EUR, and `aliexpress.us`).
+   `aliexpress.com` (English, EUR). Also capture a search page on `aliexpress.us` (English, USD),
+   and on `pl.aliexpress.com` with Polish language and PLN currency (non-English, third currency).
+   Make sure the search page includes the "Premium sponsored items" row.
 2. Scroll to the bottom so every lazily rendered card exists. In DevTools, copy the `outerHTML`
    of the listing container, or use "Save page as… → Web page, complete".
 3. **Sanitise** before committing: remove cookies and inline `<script>` blocks, session and
@@ -64,14 +66,14 @@ real AliExpress in **both** Chrome and Firefox (FR-020).
 |---|---|---|---|---|
 | V1 | Default hiding | Fresh install → open AliExpress search "phone case" | No visible card has a Choice/Brand+ badge. Cards tagged "Ad", "11.11 Sale", or "Bundle deals" (without those badges) are visible. No gaps in the grid | US1, FR-001–004, FR-010, SC-005 |
 | V2 | Lazy and later loads | Scroll to the bottom of the results, then go to page 2, then change sort, then apply a filter | Matching cards never appear, not even for one frame (record the screen and step through frames). No reload needed | FR-005, FR-006, SC-003 |
-| V3 | Page-type and region sample | Visit ≥ 10 pages: search, category, store, homepage, product page recommendations, on `.com` and `.us` | 100% of badged cards hidden, 0 unbadged cards hidden (compare with the extension off) | SC-001, SC-002, FR-007, FR-008 |
+| V3 | Page-type and region sample | Visit ≥ 10 pages: search, category, store, homepage, product page recommendations, on `.com`, `.us`, and `pl.aliexpress.com` (Polish, PLN) | 100% of badged cards hidden, 0 unbadged cards hidden (compare with the extension off) | SC-001, SC-002, FR-007, FR-008 |
 | V4 | Product page untouched | Open a Choice product's own page directly | Page shows normally. Only its recommendation cards are filtered | FR-009 |
 | V5 | Toggle and count | Open the popup on a results page → note the count → switch off → switch on | Count shown. Cards reappear and disappear again within 1 s, without a reload | US2, FR-011, FR-012, SC-006 |
 | V6 | Persistence | Switch hiding off → restart the browser → open AliExpress | Hiding still off (Firefox: needs a lasting install) | FR-014 |
-| V7 | Not AliExpress | Open the popup on another site | "NoChoice only works on AliExpress." The page is unchanged | US2-5, FR-018 |
+| V7 | Not AliExpress | Open the popup on another site, and on `aliexpress.ru` | "NoChoice only works on AliExpress." The page is unchanged | US2-5, FR-018 |
 | V8 | Per-badge | Turn Brand+ off only → load a page with both badges | Choice hidden, Brand+ visible. Kept after a restart | US3, FR-013 |
 | V9 | All hidden | Search a term where every result is Choice (or use the `all-choice` fixture) | Notice with "Show hidden listings". Clicking it shows the cards, including ones loaded later by scrolling. Reloading or changing page hides them again. Popup settings unchanged | FR-015 |
 | V10 | Fail-safe | Run E2E against the `unknown-markup` fixture (badge markup changed) | Nothing hidden | FR-016 |
-| V11 | No network, no data | DevTools Network panel, filtered to the extension's requests; check the storage contents | Zero requests made by the extension. Storage contains only the `settings` key | FR-017, SC-007 |
+| V11 | No network, no data | Automated in `test:e2e` (no fetch, XHR, WebSocket, or other non-extension requests; storage keys ⊆ `settings`). On the live site: DevTools Network panel, filtered to the extension's requests; check the storage contents | Zero requests made by the extension. Storage contains only the `settings` key | FR-017, SC-007 |
 | V12 | Performance | `npm run test:perf`; by hand, scroll through about 500 listings on the homepage feed | Within budgets. No visible stutter | SC-004 |
 | V13 | Accessibility | Use the popup and the notice with the keyboard only and with VoiceOver/NVDA | Everything works by keyboard, labels are announced, the count is announced politely. axe reports 0 violations | FR-019 |

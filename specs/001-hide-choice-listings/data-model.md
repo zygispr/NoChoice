@@ -68,6 +68,7 @@ One way of recognising a badge in AliExpress markup ([research R5](./research.md
 |---|---|---|
 | `id` | string | e.g. `search-grid`, `store-grid`, `home-feed`, `pdp-more-to-love` |
 | `selector` | string (CSS) | Matches the container whose **direct children** are listing cards |
+| `isPrimaryResults` | boolean | `true` only for the main search, category, and store result grids. Only these can show the "all listings hidden" notice (FR-015). `false` for sponsored rows, the homepage feed, and product-page recommendations |
 
 A listing root is the direct child of a matched container that contains the badge node. If there
 is no such container, there is no listing root and the card is not hidden (FR-009, FR-016).
