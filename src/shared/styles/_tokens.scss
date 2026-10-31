@@ -1,0 +1,93 @@
+// Design tokens shared by the popup and the in-page notice, so both look and read the same
+// (constitution Principle IV). Colours are CSS custom properties so the dark scheme can swap them:
+// include `color-scheme-properties` once on each surface's root (`:root` in the popup, `:host` in
+// the notice's shadow root), then use the `$color-*` variables.
+//
+// Sizes are in px, not rem: the notice renders inside AliExpress pages, whose root font size we
+// don't control.
+//
+// Contrast ratios (WCAG 2.2 relative luminance) are measured against the surface of the same
+// scheme. AA needs at least 4.5:1 for text and 3:1 for UI parts and focus indicators.
+
+$light-colors: (
+  // 14.68:1
+  text: #1f2937,
+  // 7.56:1
+  text-muted: #4b5563,
+  surface: #ffffff,
+  // 4.83:1, for switch tracks and control outlines
+  border: #6b7280,
+  // 6.70:1; surface-coloured text on an accent fill is also 6.70:1
+  accent: #1d4ed8,
+  // 6.47:1
+  error: #b91c1c
+);
+
+$dark-colors: (
+  // 16.12:1
+  text: #f3f4f6,
+  // 6.99:1
+  text-muted: #9ca3af,
+  surface: #111827,
+  // 6.99:1
+  border: #9ca3af,
+  // 9.84:1; surface-coloured text on an accent fill is also 9.84:1
+  accent: #93c5fd,
+  // 9.35:1
+  error: #fca5a5
+);
+
+@mixin color-scheme-properties {
+  color-scheme: light dark;
+  @each $name, $value in $light-colors {
+    --nc-color-#{$name}: #{$value};
+  }
+
+  @media (prefers-color-scheme: dark) {
+    @each $name, $value in $dark-colors {
+      --nc-color-#{$name}: #{$value};
+    }
+  }
+}
+
+$color-text: var(--nc-color-text);
+$color-text-muted: var(--nc-color-text-muted);
+$color-surface: var(--nc-color-surface);
+$color-border: var(--nc-color-border);
+$color-accent: var(--nc-color-accent);
+$color-error: var(--nc-color-error);
+$color-focus: $color-accent;
+
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 24px;
+
+$font-family:
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  Roboto,
+  'Helvetica Neue',
+  Arial,
+  sans-serif;
+$font-size-sm: 12px;
+$font-size-md: 14px;
+$font-size-lg: 16px;
+$font-size-xl: 18px;
+$line-height: 1.4;
+
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-pill: 999px;
+
+// Every keyboard focus gets a ring at least 2 px wide, in the accent colour (6.70:1 light,
+// 9.84:1 dark against the surface). The offset keeps the ring on the surface colour even around
+// accent-filled buttons, so it never blends into the control.
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 2px solid $color-focus;
+    outline-offset: 2px;
+  }
+}
