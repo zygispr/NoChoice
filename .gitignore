@@ -61,3 +61,7 @@ venv/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Test output
+playwright-report/
+test-results/

@@ -1,0 +1,55 @@
+{
+  "name": "nochoice",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser extension that hides AliExpress Choice and Brand+ listings.",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "vite build && vite build -c vite.content.config.ts",
+    "dev:popup": "vite build --watch",
+    "dev:content": "vite build -c vite.content.config.ts --watch",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -b",
+    "test": "vitest run --project unit --passWithNoTests",
+    "test:e2e": "npm run build && playwright test",
+    "test:perf": "vitest run --project perf && vitest bench --run && playwright test -c playwright.perf.config.ts",
+    "lint:ext": "web-ext lint --source-dir dist"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@playwright/test": "1.64.1",
+    "@testing-library/dom": "10.4.2",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.8",
+    "@types/chrome": "0.3.7",
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "@vitest/coverage-v8": "5.0.5",
+    "eslint": "9.39.5",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.13.0",
+    "jsdom": "30.1.3",
+    "prettier": "3.9.10",
+    "sass": "1.107.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.1",
+    "vite": "7.3.7",
+    "vitest": "5.0.5",
+    "vitest-axe": "0.1.0",
+    "web-ext": "10.8.0"
+  }
+}

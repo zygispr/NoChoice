@@ -46,6 +46,7 @@ first (constitution: "every new dependency is justified in the plan").
 | `@vitest/coverage-v8` | dev | Coverage reports and the 80% line threshold the constitution requires |
 | `jsdom` | dev | DOM environment for Vitest (fixture-based content-script tests) |
 | `@testing-library/react` | dev | Renders popup components through their public interface |
+| `@testing-library/dom` | dev | Required peer dependency of `@testing-library/react` 16 (queries, `screen`); npm does not install it automatically |
 | `@testing-library/user-event` | dev | Realistic keyboard and pointer input for the FR-019 keyboard tests |
 | `@testing-library/jest-dom` | dev | DOM assertions (`toBeChecked`, `toHaveAccessibleName`, …) for readable tests |
 | `vitest-axe` | dev | Automated axe accessibility checks in component tests (FR-019) |

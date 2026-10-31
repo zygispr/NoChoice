@@ -1,0 +1,19 @@
+{
+  // Shared by tsconfig.app.json (src/) and tsconfig.node.json (tests, tooling).
+  // No `composite`: it would require every imported src/ file to be in the Node
+  // config's own `include`, which breaks tests that import src/ (TS6307).
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  }
+}

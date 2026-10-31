@@ -1,0 +1,11 @@
+dist
+coverage
+playwright-report
+test-results
+tests/fixtures/**/*.html
+package-lock.json
+
+# Spec Kit scaffolding and generated spec docs: owned and rewritten by the speckit commands
+.claude
+.specify
+specs
