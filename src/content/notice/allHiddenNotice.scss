@@ -1,0 +1,41 @@
+@use '../../shared/styles/tokens' as *;
+
+// `all: initial` stops page styles that inherit through the shadow boundary from reaching the notice.
+:host {
+  @include color-scheme-properties;
+  all: initial;
+  display: block;
+}
+
+.notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+  margin-block-end: $space-3;
+  padding: $space-3 $space-4;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface;
+  color: $color-text;
+  font-family: $font-family;
+  font-size: $font-size-md;
+  line-height: $line-height;
+}
+
+.message {
+  margin: 0;
+}
+
+.reveal {
+  @include focus-ring;
+  min-height: 32px;
+  padding: $space-1 $space-3;
+  border: 0;
+  border-radius: $radius-sm;
+  background: $color-accent;
+  color: $color-surface;
+  font: inherit;
+  cursor: pointer;
+}

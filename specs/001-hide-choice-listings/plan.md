@@ -45,6 +45,7 @@ first (constitution: "every new dependency is justified in the plan").
 | `vitest` | dev | Unit, contract, and component test runner, Vite-native (R9) |
 | `@vitest/coverage-v8` | dev | Coverage reports and the 80% line threshold the constitution requires |
 | `jsdom` | dev | DOM environment for Vitest (fixture-based content-script tests) |
+| `@types/jsdom` | dev | Types for `jsdom`, which the E2E and perf tests also use in Node to build synthetic pages from fixtures |
 | `@testing-library/react` | dev | Renders popup components through their public interface |
 | `@testing-library/dom` | dev | Required peer dependency of `@testing-library/react` 16 (queries, `screen`); npm does not install it automatically |
 | `@testing-library/user-event` | dev | Realistic keyboard and pointer input for the FR-019 keyboard tests |

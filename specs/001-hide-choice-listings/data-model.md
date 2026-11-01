@@ -83,8 +83,8 @@ One product card (spec: *Product listing*).
 |---|---|---|
 | `data-nochoice-badges` attribute on the listing root | space-separated BadgeTypes, or `""` | `classifyListing` |
 
-- Written **once per card**, when it is added or its badge image `src` changes. It is based only on
-  markup and **does not depend on settings**.
+- Written when a card is added, or when an image `src` changes or a node is removed inside it. It
+  is based only on markup and **does not depend on settings**.
 - "Is hidden" is **derived**, not stored: a card is hidden when its badges overlap the effective
   hidden set and the page is not revealed. CSS applies it; `hiddenCount` reports it.
 - Freed together with the DOM node, so the content script keeps no per-card memory.

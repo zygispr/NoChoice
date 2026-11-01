@@ -47,8 +47,9 @@ html[data-nochoice-hide~="brand-plus"] [data-nochoice-badges~="brand-plus"] {
      render lazily, so a first batch that happens to be all Choice must not flash a notice before
      the rest arrive.
 - **Placement**: one notice per affected container, inserted as that container's previous
-  sibling. A custom element host `<nochoice-notice>` with an **open shadow root**. Styles come
-  from `allHiddenNotice.scss` (shared tokens) and sit inside the shadow root.
+  sibling. A host element `<nochoice-notice>` with an **open shadow root**. It is not registered
+  as a custom element, because `customElements` is `null` in a content script's isolated world.
+  Styles come from `allHiddenNotice.scss` (shared tokens) and sit inside the shadow root.
 - **Content and semantics**:
   - Container `role="status"` so screen readers announce it once.
   - Text: "All *N* listings in these results were hidden by NoChoice (*badges*)." *N* is the
