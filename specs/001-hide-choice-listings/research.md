@@ -201,8 +201,9 @@ checklist in quickstart). This is also the procedure to follow whenever AliExpre
 markup. It is expected maintenance (spec Assumptions).
 
 **Update, 2026-11-01**: Playwright's Chromium, with the extension loaded, now receives real pages,
-so a live sample no longer needs a person. AliExpress gives each session one of two card layouts
-(`new--…` or `us--…`), unpredictably, and each has its own badge images, so sample both.
+so a live sample no longer needs a person. AliExpress serves one of two card layouts
+(`new--…` or `us--…`), unpredictably and sometimes changing within a session, and each has its own
+badge images, so sample both.
 
 **Required fixture set** (feeds SC-001/SC-002): search results, category page, store page,
 homepage feed, product page "More to love"/"Related items", and three regional variants that

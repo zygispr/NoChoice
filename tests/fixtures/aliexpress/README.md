@@ -27,8 +27,9 @@ inspected by eye, which identified the badge images:
 No card shows these badges as text or as a CSS background. The labels were spot-checked against
 screenshots of `home-com` and `search-us`. Screenshots are local aids and are not committed.
 
-**Card layouts**: AliExpress serves a whole session one of two card layouts, whatever the domain:
-`new--…` or `us--…`. Each has its own badge images, so a badge needs a fixture in both layouts. Which one a session gets isn't predictable. `search-com-us-layout` was added
+**Card layouts**: AliExpress serves one of two card layouts, whatever the domain: `new--…` or
+`us--…`. Each has its own badge images, so a badge needs a fixture in both layouts. Which one a page
+gets isn't predictable, and it can change in the same session, even when a sort replaces the results. `search-com-us-layout` was added
 after the second Brand+ image was found on the live site, with an automated browser, which is why
 it has only one Brand+ card.
 

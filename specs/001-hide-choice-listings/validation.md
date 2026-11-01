@@ -53,14 +53,14 @@ Limits of this sample:
 | # | Check | Result |
 |---|---|---|
 | V1 | Default hiding | Pass (live table above; E2E; confirmed by hand by the project owner) |
-| V2 | Lazy and later loads | Pass (flash monitor above; E2E). Sort and filter were not exercised live, only in-place replacement on fixtures |
+| V2 | Lazy and later loads | Pass (flash monitor above; E2E; sort, filter, and paging live, below) |
 | V3 | Page-type and region sample | Pass (table above) |
 | V4 | Product page untouched | Pass (table above; E2E) |
 | V5 | Toggle and count | Pass, live: count matched the page (36), off in 74 ms, on in 30 ms |
 | V6 | Persistence | Pass (E2E, restart on the same profile) |
 | V7 | Not AliExpress | Pass, live: `example.com` and `aliexpress.ru` untouched, popup says it only works on AliExpress |
 | V8 | Per-badge | Pass, live, in both card layouts and across a restart |
-| V9 | All hidden | Pass (E2E on synthetic pages). Not seen on a live page |
+| V9 | All hidden | Pass (E2E on synthetic pages; live, below) |
 | V10 | Fail-safe | Pass (E2E) |
 | V11 | No network, no data | Pass: no network APIs in `content.js` or the popup bundle, no requests from extension pages live, storage holds at most `settings` |
 | V12 | Performance | Pass (`npm run test:perf`). Live load time: median 912 ms without the extension, 957 ms with it (about 5%; small and noisy sample) |
@@ -116,14 +116,14 @@ browser. The `pl.` homepage rendered in English in this run.
 | # | Check | Result |
 |---|---|---|
 | V1 | Default hiding | Pass (live table; all 9 fixtures match their labels; no grid gaps) |
-| V2 | Lazy and later loads | Pass (flash monitor; on fixtures, added cards are hidden by the next frame and a replaced grid is reclassified). Sort and filter were not exercised live, as in Chromium |
+| V2 | Lazy and later loads | Pass (flash monitor; on fixtures, added cards are hidden by the next frame and a replaced grid is reclassified; sort, filter, and paging live, below) |
 | V3 | Page-type and region sample | Pass (live table) |
 | V4 | Product page untouched | Pass (live table; fixture) |
 | V5 | Toggle and count | Pass, live, in the real toolbar popup: count matched the page (40, shown as Choice 14 and Brand+ 26), off in 21 ms, on in 18 ms |
 | V6 | Persistence | Partial: hiding stayed off across a restart, but a temporary add-on is removed on restart, so it was reinstalled with its storage kept. Not tried with a lasting install |
 | V7 | Not AliExpress | Pass, on fixtures served at `example.com` and `aliexpress.ru`: page unchanged, popup says it only works on AliExpress. Page checked live too |
 | V8 | Per-badge | Pass, live with Brand+ off (26 Brand+ cards shown, Choice stayed hidden). Kept across a restart, with the same caveat as V6 |
-| V9 | All hidden | Pass on the `store-com` fixture: notice appears, its button shows the cards including later ones, a reload hides them again, settings unchanged. Not seen on a live page |
+| V9 | All hidden | Pass on the `store-com` fixture: notice appears, its button shows the cards including later ones, a reload hides them again, settings unchanged. Also live, below |
 | V10 | Fail-safe | Pass: `search-com` with its badge images renamed hides nothing and shows no notice |
 | V11 | No network, no data | Pass: only document and image requests across all fixture runs, none from the extension page live, storage holds only `settings` |
 | V12 | Performance | Not measured: `test:perf` runs in Chromium only. `content.js` is the same file in both browsers |
@@ -131,3 +131,37 @@ browser. The `pl.` homepage rendered in English in this run.
 
 The real toolbar popup was opened with `action.openPopup()` and read directly, with no `?tabId=` seam. It
 measured 320 × 224 with no overflow. Nobody has yet looked at it or clicked it by hand in Firefox.
+
+## Sort, filter, and paging: live, both browsers (FR-006, FR-015)
+
+Real mouse clicks on one results page, in this order: sort by Orders, Price, and Best Match; Free
+shipping on and off; next page; AliExpress's own Choice filter; then the notice's button, followed by
+another next page, the button again, and sort by Orders. The per-frame monitor ran throughout. Each
+action replaced the results in place, with no page reload.
+
+| Browser | Search | Layout at load, then after sorting | Badged visible, every step before the reveal | Unbadged hidden | Frames with a visible badge before the reveal |
+|---|---|---|---|---|---|
+| Firefox | xiaomi | new, then us | 0 | 0 | 0 of 9628 |
+| Firefox | xiaomi | us, then new | 0 | 0 | 0 of 9926 |
+| Firefox | anker charger | new, then us | 0 | 0 | 0 of 9971 |
+| Chromium | xiaomi | new, then new | 0 | 0 | 0 of 5047 |
+| Chromium | anker charger | us, then new | 0 | 0 | 0 of 5043 |
+
+**Notice**: with the Choice filter on, the notice appeared live and its button showed the cards, in four
+of the five runs. A later next page or sort hid the new results again and brought the notice back, and
+no new product card showed a badge in between. Revealed cards stay on screen until their replacements
+arrive, which is expected. Bundle deals cards have no product ID in this check, so one may be counted
+as old or new either way.
+
+In the second Firefox run, one of 57 cards with the Choice filter on had no badge. AliExpress returned
+it for that filter, but the only "Choice" on it was painted into the seller's photo, so it stayed visible
+and no notice appeared. That run stopped there. This is the fail-safe working as intended (FR-016): detection works from
+badges, and like sponsored cards, a Choice product shown without a badge is not hidden.
+
+Limits:
+
+- The first Firefox xiaomi run clicked "Price" in the sidebar by mistake, so it did not sort by price,
+  and it predates the check for which cards showed a badge. The other runs cover both.
+- Sorting and filtering in the `us` layout were seen in Firefox only. Chromium's runs were in `new`
+  after the first action. Both layouts are covered on fixtures.
+- These were two search terms on `www.aliexpress.com` in English.

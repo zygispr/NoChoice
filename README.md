@@ -56,8 +56,8 @@ with the new logo simply stay visible; nothing gets hidden by mistake.
    [capture procedure](./specs/001-hide-choice-listings/quickstart.md#capturing-fixtures-first-implementation-task-and-whenever-aliexpress-changes)
    and the [fixtures README](./tests/fixtures/aliexpress/README.md).
 
-Watch for two things: AliExpress serves each session one of two card layouts, each with its own
-images, and it translates the Brand+ logo per language.
+Watch for two things: AliExpress serves one of two card layouts, unpredictably and sometimes
+changing within a session, each with its own images, and it translates the Brand+ logo per language.
 
 ## Not included
 
