@@ -82,9 +82,52 @@ has an image per card layout:
 A logo that isn't known leaves its cards visible (FR-016), so a gap here means some Brand+ listings
 show, and nothing is hidden by mistake.
 
-## Firefox (FR-020): not done
+## Firefox (FR-020)
 
-T082 and the Firefox half of T083 are open. Playwright can't load extensions in Firefox, Firefox isn't
-installed on the machine used, and downloading it for this run was not permitted. Parity rests for now
-on using only APIs that behave the same in both browsers and on `web-ext lint` passing.
+Run on 2026-11-01 in Firefox 159 on macOS, headless, with a temporary profile and `dist/` installed as
+a temporary add-on. Playwright can't load extensions in Firefox, so a one-off script drove it over
+WebDriver BiDi, which is built into Firefox. Like the Chromium scripts, it is not in the repository.
 
+### Live pages (SC-001, SC-002, SC-003)
+
+The same per-frame monitor ran as in Chromium, while each page was scrolled.
+
+| Page | Language | Layout | Cards | Badged | Badged visible | Unbadged hidden | Frames with a visible badge |
+|---|---|---|---|---|---|---|---|
+| `www.aliexpress.com/w/wholesale-xiaomi.html` | en | new | 60 | 40 | 0 | 0 | 0 of 1274 |
+| `www.aliexpress.com/w/wholesale-Mounts-%26-Holders.html` | en | us | 65 | 46 | 0 | 0 | 0 of 1271 |
+| `www.aliexpress.com/store/1104686185` | - | - | 30 | 30 | 0 | 0 | 0 of 1258 |
+| `www.aliexpress.com/item/1005011879619630.html` | en | - | 35 | 32 | 0 | 0 | 0 of 1235 |
+| `www.aliexpress.com/` | en | - | 60 | 57 | 0 | 0 | 0 of 1266 |
+| `www.aliexpress.us/w/wholesale-anker-charger.html` | en | us | 60 | 3 | 0 | 0 | 0 of 1277 |
+| `pl.aliexpress.com/w/wholesale-xiaomi.html` | pl | us | 59 | 37 | 0 | 0 | 0 of 1283 |
+| `pl.aliexpress.com/` | en | - | 60 | 55 | 0 | 0 | 0 of 1250 |
+| `de.aliexpress.com/w/wholesale-xiaomi.html` | de | us | 59 | 37 | 0 | 0 | 0 of 1270 |
+| `www.aliexpress.com/w/wholesale-usb-cable.html` | en | us | 64 | 53 | 0 | 0 | 0 of 1259 |
+
+**Result**: 0 badged listings visible and 0 unbadged listings hidden on all 10 pages, with no frame
+showing a badge, in both card layouts. The main product stayed visible on the product page (FR-009).
+`aliexpress.ru` and `example.com` were untouched. The limits listed for the Chromium sample apply here
+too: "badged" means carrying a known logo, and the monitor samples at animation frames in a headless
+browser. The `pl.` homepage rendered in English in this run.
+
+### Other checks
+
+| # | Check | Result |
+|---|---|---|
+| V1 | Default hiding | Pass (live table; all 9 fixtures match their labels; no grid gaps) |
+| V2 | Lazy and later loads | Pass (flash monitor; on fixtures, added cards are hidden by the next frame and a replaced grid is reclassified). Sort and filter were not exercised live, as in Chromium |
+| V3 | Page-type and region sample | Pass (live table) |
+| V4 | Product page untouched | Pass (live table; fixture) |
+| V5 | Toggle and count | Pass, live, in the real toolbar popup: count matched the page (40, shown as Choice 14 and Brand+ 26), off in 21 ms, on in 18 ms |
+| V6 | Persistence | Partial: hiding stayed off across a restart, but a temporary add-on is removed on restart, so it was reinstalled with its storage kept. Not tried with a lasting install |
+| V7 | Not AliExpress | Pass, on fixtures served at `example.com` and `aliexpress.ru`: page unchanged, popup says it only works on AliExpress. Page checked live too |
+| V8 | Per-badge | Pass, live with Brand+ off (26 Brand+ cards shown, Choice stayed hidden). Kept across a restart, with the same caveat as V6 |
+| V9 | All hidden | Pass on the `store-com` fixture: notice appears, its button shows the cards including later ones, a reload hides them again, settings unchanged. Not seen on a live page |
+| V10 | Fail-safe | Pass: `search-com` with its badge images renamed hides nothing and shows no notice |
+| V11 | No network, no data | Pass: only document and image requests across all fixture runs, none from the extension page live, storage holds only `settings` |
+| V12 | Performance | Not measured: `test:perf` runs in Chromium only. `content.js` is the same file in both browsers |
+| V13 | Accessibility | Partial: real Tab, Space, and Enter work on all three switches, and axe reports 0 violations on the popup as Firefox renders it. Not tried with VoiceOver or NVDA |
+
+The real toolbar popup was opened with `action.openPopup()` and read directly, with no `?tabId=` seam. It
+measured 320 × 224 with no overflow. Nobody has yet looked at it or clicked it by hand in Firefox.
