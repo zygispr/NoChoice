@@ -52,9 +52,10 @@ published.
 3. **Sanitise** before committing: remove cookies and inline `<script>` blocks, session and
    tracking IDs (`data-session-id`, `eurl`, `data-spm*`, `p4p_pvid`), and any account name,
    address, or order data.
-4. Save as `tests/fixtures/aliexpress/<page-type>-<region>.html` with a matching
-   `<name>.expected.json` that lists each card's product ID and its badges, labelled **by hand**
-   from the screenshot.
+4. Save as `tests/fixtures/aliexpress/<page-type>-<region>.html`. An agent generates the matching
+   `<name>.expected.json` from the HTML: it lists each card's product ID and badges, after inspecting
+   every interface image on the cards, and strips third-party content from the HTML (rules in
+   `tests/fixtures/aliexpress/README.md`).
 5. Run `npm test`. The fixture contract test must classify 100% of cards as labelled.
 
 ## Validation scenarios

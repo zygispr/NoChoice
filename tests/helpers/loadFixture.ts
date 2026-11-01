@@ -1,12 +1,12 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BADGE_TYPES, type BadgeType } from '../../src/shared/badgeTypes';
 
 /** Sanitised captures of real AliExpress pages (quickstart.md § Capturing fixtures). */
-export const FIXTURES_DIR = fileURLToPath(new URL('../fixtures/aliexpress/', import.meta.url));
+export const FIXTURES_DIR = join(dirname(fileURLToPath(import.meta.url)), '../fixtures/aliexpress');
 
-/** Hand-verified labels for one fixture (`<name>.expected.json`). */
+/** Expected badges for every listing card in one fixture (`<name>.expected.json`). */
 export interface ExpectedFixture {
   source: string;
   capturedAt: string;
@@ -19,7 +19,7 @@ export function loadFixture(name: string): Document {
   return document;
 }
 
-/** Reads `<name>.expected.json`, failing loudly if a hand-written label file is malformed. */
+/** Reads `<name>.expected.json`, failing loudly if a label file is malformed. */
 export function loadExpected(name: string): ExpectedFixture {
   const file = join(FIXTURES_DIR, `${name}.expected.json`);
   const parsed: unknown = JSON.parse(readFileSync(file, 'utf8'));
