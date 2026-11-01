@@ -15,17 +15,48 @@ export function classifyDocument(root: ParentNode): void {
   }
 }
 
-/** Handles a node added to the page, which may be a container, a card, or part of a card. */
-export function classifyAddedNode(node: Element): void {
-  if (isListingContainer(node)) classifyChildren(node);
-  else classifyEnclosingListing(node);
-  classifyDocument(node);
-}
+/**
+ * The cards one batch of page changes affects. The parser delivers a card's parts one by one, about
+ * a hundred per card, so cards are classified once at the end, and a part whose parent is already
+ * known to be inside a card skips the selector lookups.
+ */
+export class ListingBatch {
+  readonly #cards = new Set<Element>();
+  readonly #nodesInCards = new Set<Element>();
 
-/** Re-classifies the card that holds `node`, if there is one. */
-export function classifyEnclosingListing(node: Element): void {
-  const card = findListingRoot(node);
-  if (card) classifyListing(card);
+  /** Handles a node added to the page: a container, a card, part of a card, or a wrapper. */
+  addNode(node: Element): void {
+    if (node.parentElement && this.#nodesInCards.has(node.parentElement)) {
+      this.#nodesInCards.add(node);
+      return;
+    }
+    if (isListingContainer(node)) {
+      this.#addChildren(node);
+      return;
+    }
+    if (this.addEnclosingListing(node)) {
+      this.#nodesInCards.add(node);
+      return;
+    }
+    for (const container of node.querySelectorAll(LISTING_CONTAINER_SELECTOR)) {
+      this.#addChildren(container);
+    }
+  }
+
+  /** Adds the card that holds `node`, returning whether there is one. */
+  addEnclosingListing(node: Element): boolean {
+    const card = findListingRoot(node);
+    if (card) this.#cards.add(card);
+    return card !== null;
+  }
+
+  classifyAll(): void {
+    for (const card of this.#cards) classifyListing(card);
+  }
+
+  #addChildren(container: Element): void {
+    for (const card of container.children) this.#cards.add(card);
+  }
 }
 
 function classifyChildren(container: Element): void {

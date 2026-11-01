@@ -63,7 +63,7 @@ in the content script.
 
 **Testing**: Vitest + jsdom (unit, contract, against sanitised AliExpress fixtures), React Testing
 Library + vitest-axe (popup components), Playwright Chromium with the unpacked extension loaded and
-fixture-routed AliExpress URLs (E2E), Vitest bench + Playwright trace (performance)
+fixture-routed AliExpress URLs (E2E), and timings in real Chromium through Playwright (performance)
 
 **Target Platform**: desktop Chromium-based browsers (Chrome, Edge, Brave; current stable) and
 desktop Firefox (current stable, 128+ / ESR). Manifest V3. Safari kept possible (no Chrome-only
@@ -113,7 +113,7 @@ and `aliexpress.us`) of AliExpress markup to recognise. `aliexpress.ru` is out o
 | **II. Simplicity** | Every dependency or layer justified. YAGNI. | ✅ No backend, no background script, no state library, no router, no extension framework (R1, R3, R6). React, atomic design, and SCSS are user-mandated → Complexity Tracking. | ✅ Design adds only what the FRs need: one storage key, one port protocol, one root attribute. Infinite scroll deferred (R2). |
 | **III. Testing (NON-NEGOTIABLE)** | Test-first. E2E per user story. Contract tests at boundaries. | ✅ Vitest/RTL/Playwright stack chosen (R9). | ✅ Boundaries with contracts: AliExpress markup (fixture contract), storage schema, popup↔content messages. E2E for US1–US3 in Chromium. Firefox parity is a manual check (see Complexity Tracking). |
 | **IV. Great UX** | User-perspective states, immediate feedback, WCAG 2.2 AA, no lost data. | ✅ Spec covers primary, empty (all hidden), off, not-AliExpress, and error states. | ✅ Popup UI contract lists every state, including "reload needed" and "settings couldn't be saved". The notice is keyboard-reachable and announced through `role="status"`. Settings persist (FR-014). Shared SCSS tokens keep the popup and notice consistent. |
-| **V. Performance** | Measurable budgets plus automated perf tests. | ✅ Budgets above. | ✅ O(1) setting toggles (root attribute). Observer processes only added nodes. Bench + trace tests in `tests/perf/` run in CI as a merge gate (`npm run test:perf`, added by T078), so a > 10% budget regression blocks merge. |
+| **V. Performance** | Measurable budgets plus automated perf tests. | ✅ Budgets above. | ✅ O(1) setting toggles (root attribute). Observer processes only added nodes. Timing and trace tests in `tests/perf/` run in Chromium in CI as a merge gate (`npm run test:perf`, added by T078), so a > 10% budget regression blocks merge. |
 | **VI. Scalability** | Bounded collections, versioned schemas, observability. | ✅ No unbounded caches: state lives on DOM attributes, which are freed with the nodes. | ✅ `settings.version` and message `type` names are versioned with a migration rule. Observability exception (no telemetry, by FR-017) → Complexity Tracking. |
 
 **Result**: PASS (pre- and post-design). The deviations below are justified.
@@ -188,7 +188,7 @@ tests/
 ├── unit/                         # content logic + shared settings
 ├── contract/                     # fixture labels, storage schema, message shapes
 ├── e2e/                          # Playwright: us1-hiding, us2-toggle-count, us3-per-badge, edge cases
-└── perf/                         # classify bench, 500-card scroll trace
+└── perf/                         # budgets in real Chromium, 500-card scroll trace
 
 vite.config.ts                    # popup build
 vite.content.config.ts            # content script IIFE + content.css

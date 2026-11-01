@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { detectBadges } from '../../src/content/badges/detectBadges';
 import { LISTING_CONTAINERS } from '../../src/content/listings/listingContainers';
 import { normaliseLabels, readClassifiedCards } from '../helpers/fixtureCards';
+import { BRAND_PLUS_ASSET_IDS_BY_LANGUAGE } from '../helpers/badgeAssets';
 import { listFixtures, loadExpected, loadFixture } from '../helpers/loadFixture';
 
 const CHOICE_IMAGE =
@@ -42,6 +43,35 @@ describe('detectBadges', () => {
     expect(detectBadges(card(`<img src="${BRAND_PLUS_ALT_LAYOUT_IMAGE}">`))).toEqual([
       'brand-plus',
     ]);
+  });
+
+  // Brand+ is a translated logo: Marcas+, Marke+, Marque+, Marka+. Choice is the same everywhere.
+  it.each(
+    Object.entries(BRAND_PLUS_ASSET_IDS_BY_LANGUAGE).flatMap(([language, assetIds]) =>
+      assetIds.map((assetId, index) => [language, index + 1, assetId] as const),
+    ),
+  )('recognises the %s Brand+ logo %i', (_language, _index, assetId) => {
+    const logo = `https://ae-pic-a1.aliexpress-media.com/kf/${assetId}.png`;
+
+    expect(detectBadges(card(`<img src="${logo}">`))).toEqual(['brand-plus']);
+  });
+
+  it('recognises a logo served with its size in the path', () => {
+    const logo =
+      'https://ae-pic-a1.aliexpress-media.com/kf/Sd11e9e7507af41ea9402560e2bb3d5c0F/156x64.png';
+
+    expect(detectBadges(card(`<img src="${logo}">`))).toEqual(['brand-plus']);
+  });
+
+  it('does not treat translated sale or deal tags as badges', () => {
+    const tags = [
+      'Sf58c5e31950f461fbf0e0819b3f53ce9X', // "Wyprzedaż 11.11"
+      'Sce81c0d60f0d4603abd4cc32222aceccO', // "Świetne oferty"
+      'S4da64e54e5fa42c6a7428dd571c7fac93', // "Promo del 11.11"
+      'S47f57d5a3bd44d328319a447678f7b65x', // differs from the French logo by one character
+    ].map((assetId) => `<img src="https://ae-pic-a1.aliexpress-media.com/kf/${assetId}.png">`);
+
+    expect(detectBadges(card(tags.join('')))).toEqual([]);
   });
 
   it('returns both badges in BADGE_TYPES order, without duplicates', () => {

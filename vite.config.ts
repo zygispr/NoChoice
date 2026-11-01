@@ -10,6 +10,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    // The polyfill is the only network code in the bundle, and extension pages don't need it.
+    modulePreload: { polyfill: false },
     rollupOptions: { input: { popup: 'src/popup/index.html' } },
   },
 });

@@ -20,8 +20,9 @@ npm run format:check  # Prettier: zero diffs
 npm run typecheck     # tsc --noEmit: zero errors
 npm test              # Vitest: unit + contract + component (incl. axe)
 npm run test:e2e      # Playwright Chromium + unpacked extension + fixture-routed AliExpress
-npm run test:perf     # Vitest bench + 500-card scroll trace against plan budgets
+npm run test:perf     # Budgets in real Chromium, including a 500-card scroll trace
 npm run build         # → dist/ (popup + content.js + content.css + manifest)
+npm run size          # Bundle size budgets
 npm run lint:ext      # web-ext lint on dist/
 ```
 
@@ -42,8 +43,8 @@ published.
 
 ## Capturing fixtures (first implementation task, and whenever AliExpress changes)
 
-1. In a **normal** desktop browser session (automated browsers get a reduced, anti-bot page),
-   open each page type: search, category, store, homepage, product page with "More to love", on
+1. In a desktop browser session, open each page type (a normal one is safest, but since
+   2026-11-01 Playwright has also received real pages; keep automated visits few and spaced out): search, category, store, homepage, product page with "More to love", on
    `aliexpress.com` (English, EUR). Also capture a search page on `aliexpress.us` (English, USD),
    and on `pl.aliexpress.com` with Polish language and PLN currency (non-English, third currency).
    Make sure the search page includes the "Premium sponsored items" row.

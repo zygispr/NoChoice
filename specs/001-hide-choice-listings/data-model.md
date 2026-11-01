@@ -54,9 +54,8 @@ One way of recognising a badge in AliExpress markup ([research R5](./research.md
 | Field | Type | Rule |
 |---|---|---|
 | `badge` | BadgeType | Which badge this signature identifies |
-| `id` | string | Stable name for tests/diagnostics, e.g. `choice-img-2026-10` |
-| `selector` | string (CSS) | Finds candidate badge nodes inside a card |
-| `matches` | `(el: Element) => boolean` | Exact, locale-independent check (e.g. image asset ID). Must not rely on text alone |
+| `id` | string | Stable name for tests/diagnostics, e.g. `choice-img-2026-11` |
+| `assetId` | string | The logo's image asset ID, matched as a whole path segment. Text is never used |
 
 - A card has badge *t* only if **at least one** signature for *t* matches (FR-016: no match means
   no badge).

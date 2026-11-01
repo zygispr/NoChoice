@@ -6,13 +6,14 @@ import { normaliseLabels, readClassifiedCards } from '../helpers/fixtureCards';
 import { listFixtures, loadExpected, loadFixture } from '../helpers/loadFixture';
 
 describe('fixture labels contract (contracts/page-dom.md, SC-001, SC-002)', () => {
-  it('covers all eight captured fixtures', () => {
+  it('covers all nine fixtures', () => {
     expect(listFixtures()).toEqual([
       'category-com',
       'home-com',
       'pdp-com',
       'search-com',
       'search-com-us-layout',
+      'search-locales',
       'search-pl',
       'search-us',
       'store-com',
@@ -33,10 +34,9 @@ describe('fixture labels contract (contracts/page-dom.md, SC-001, SC-002)', () =
     'signature %s matches at least once across the fixtures',
     (id) => {
       const signature = BADGE_SIGNATURES.find((candidate) => candidate.id === id);
-      const matched = listFixtures().some((name) =>
-        [...loadFixture(name).querySelectorAll(signature?.selector ?? '')].some((element) =>
-          signature?.matches(element),
-        ),
+      const matched = listFixtures().some(
+        (name) =>
+          loadFixture(name).querySelector(`img[src*="${signature?.assetId ?? ''}"]`) !== null,
       );
 
       expect(matched).toBe(true);

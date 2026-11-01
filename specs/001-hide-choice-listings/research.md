@@ -179,18 +179,21 @@ This needs no hook into the page's history API, which an isolated world cannot r
 
 **Decision**: badge recognition is a **data-driven signature table** (`badgeSignatures.ts`). The
 **first implementation task captures real fixtures** (see quickstart § "Capturing fixtures").
-Signatures use **locale-independent signals**, in order of preference:
+Signatures use these signals, in order of preference:
 
-1. The badge `<img>` **asset ID** in its `src` (for example
-   `…/kf/S<hash>.png`). The "Choice" and "Brand+" logos are images, so they are the same in every
-   language and currency (spec Assumptions, FR-007).
+1. The badge `<img>` **asset ID** in its `src` (for example `…/kf/S<hash>.png`). An image ID doesn't
+   depend on the card's text. It does depend on the image, though: live sampling on 2026-11-01 found
+   that Choice is one logo in every language, while Brand+ is **translated** (Marcas+, Marke+,
+   Marque+, Marka+, …), and that each of AliExpress's two card layouts has its own images. So the
+   table holds one entry per logo, and no language-independent marker exists on the cards. See
+   `tests/fixtures/aliexpress/README.md`.
 2. Stable structural markers next to the title, if AliExpress renders the badge as styled markup
    instead of an image.
 
 Text matching (e.g. `"Choice"`) is used **only** as a supporting signal together with a
 structural one, never alone, so a product titled "Choice of colours" is never hidden (FR-003).
 
-**Why fixtures can't be captured automatically**: during research, the automated browser was
+**Why fixtures were first captured by hand**: during research, the automated browser was
 served a reduced page (anti-bot) with only 5 sponsored cards and no organic results. Fixtures must
 come from a normal desktop browser session, saved with "Save page as… (complete)", or by copying
 `outerHTML` of the results grid in DevTools, then stripped of personal data (see the sanitising
@@ -205,7 +208,7 @@ so a live sample no longer needs a person. AliExpress gives each session one of 
 homepage feed, product page "More to love"/"Related items", and three regional variants that
 together cover **two languages and three currencies**: `aliexpress.com` (English, EUR),
 `aliexpress.us` (English, USD), and `pl.aliexpress.com` (Polish, PLN). The non-English fixture
-shows that the signatures really are locale-independent (FR-007). `aliexpress.ru` is out of scope
+checks the signatures across languages (FR-007). `aliexpress.ru` is out of scope
 and needs no fixture.
 
 **Alternatives considered**: hard-coded selectors spread through the code (brittle, and every
@@ -304,7 +307,7 @@ Prettier (the user chose ESLint + Prettier; rejected).
 | Component | Vitest + **React Testing Library** + `user-event` + **vitest-axe** | Each popup atom, molecule, and organism, including keyboard operation and automated a11y checks. |
 | Contract | Vitest | (a) Fixture contract: every fixture card has an expected label file (`*.expected.json`), and classification must match 100% (SC-001/SC-002). (b) Settings storage schema and message protocol shapes ([contracts/](./contracts/)). |
 | End-to-end | **Playwright** (Chromium, `launchPersistentContext` with `--load-extension`) | One or more acceptance tests per user story. AliExpress URLs are **served from fixtures with `page.route`**, so tests are deterministic and offline. The content script still matches because the URL is a real AliExpress URL. |
-| Performance | Vitest `bench` + a Playwright trace | Classifying a 60-card page, and a 500-card synthetic infinite-scroll fixture: no long tasks (> 50 ms) from the content script, and per-batch budgets (see plan § Performance Goals). |
+| Performance | Timings in real Chromium through Playwright, and a trace (a Vitest bench was dropped: jsdom is about 30 times slower) | Classifying a 60-card page, and a 500-card synthetic infinite-scroll fixture: no long tasks (> 50 ms) from the content script, and per-batch budgets (see plan § Performance Goals). |
 
 **Testing the popup in E2E**: a popup opened as a tab would see *itself* as the active tab. The
 popup accepts an optional `?tabId=<n>` query parameter that overrides the active-tab lookup. This

@@ -113,6 +113,40 @@ describe('watchPage', () => {
     expect(card.getAttribute(BADGES_ATTR)).toBe('');
   });
 
+  it('classifies a card once per batch, however many of its parts arrive together', async () => {
+    const card = newCard();
+    grid().append(card);
+    await nextFrame();
+    vi.mocked(detectBadges).mockClear();
+
+    for (let part = 0; part < 20; part++) card.append(document.createElement('div'));
+    const badge = document.createElement('img');
+    badge.src = CHOICE_IMAGE;
+    card.append(badge);
+    await nextFrame();
+
+    expect(detectBadges).toHaveBeenCalledTimes(1);
+    expect(card.getAttribute(BADGES_ATTR)).toBe('choice');
+  });
+
+  it('looks up the card once for parts arriving top-down, as the parser delivers them', async () => {
+    const card = newCard();
+    grid().append(card);
+    await nextFrame();
+    const closest = vi.spyOn(Element.prototype, 'closest');
+
+    let parent: Element = card;
+    for (let depth = 0; depth < 20; depth++) {
+      const part = document.createElement('div');
+      parent.append(part);
+      parent = part;
+    }
+    await nextFrame();
+
+    expect(closest.mock.calls.length).toBeLessThanOrEqual(1);
+    closest.mockRestore();
+  });
+
   it('reports a changed page key once', async () => {
     history.pushState(null, '', '?page=2');
     grid().append(newCard());

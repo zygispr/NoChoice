@@ -22,7 +22,7 @@ inspected by eye, which identified the badge images:
 | Badge  | Image asset IDs                                                            |
 | ------ | -------------------------------------------------------------------------- |
 | Choice | `S135d2af8d57840b28092ceba069bdb6c4`, `S1887a285b60743859ac7bdbfca5e0896Z` |
-| Brand+ | `Sca1bcdd1057c4a388af0eed405d9a464x`, `Sb008eb53e92f463eb0a2c17c539df530h` |
+| Brand+ | 21 translated logos, listed in `tests/helpers/badgeAssets.ts`              |
 
 No card shows these badges as text or as a CSS background. The labels were spot-checked against
 screenshots of `home-com` and `search-us`. Screenshots are local aids and are not committed.
@@ -37,6 +37,15 @@ lost their product ID when the query string was stripped during sanitising, so t
 `image:<photo asset ID>`. `search-com-us-layout` was captured with those IDs, so its Bundle deals
 links are reduced to `/item/<id>.html` too. A key that repeats gets `#2`, `#3`, … in document order: the same product
 can appear twice with different badges, because sponsored cards show none.
+
+**Languages**: Choice is one logo in every language sampled. Brand+ is translated (Marcas+, Marke+,
+Marque+, Marka+, …), per card layout. No attribute on a card marks it as Brand+ in a language-independent
+way, so each logo is listed. They were found on 2026-11-01 by listing the images in the title of cards
+on 14 language sites and inspecting them by eye. Turkish, Thai, and Korean were seen in one layout only.
+
+`search-locales` is **assembled, not captured**: real stripped cards with their badges removed, each
+given one real translated logo, so every signature is covered by a fixture without storing a capture
+per language. Its URL is made up.
 
 ## What was removed
 
@@ -55,9 +64,9 @@ Classes, IDs, nesting, and image URLs are unchanged. Images are links, so none a
 
 ## Known gaps
 
-- `search-pl` is `pl.aliexpress.com` markup, but in English and EUR, not Polish and PLN. No fixture
-  covers a non-English page. Badges are detected by image, so language should not matter, but a
-  localised badge image would go undetected, and those cards would stay visible (FR-016).
+- `search-pl` is `pl.aliexpress.com` markup, but in English and EUR, not Polish and PLN. The Polish
+  logos are covered by `search-locales` and were checked live (see `validation.md`).
+- A language not listed above, or a new logo, goes undetected, and its cards stay visible (FR-016).
 - `search-us` shows EUR, not USD.
 - Sponsored cards ("Premium sponsored items") show no badge at all, even for products that are Choice
   in the main grid. Detection works from badges, so these stay visible.

@@ -49,7 +49,11 @@ describe('PopupPage', () => {
     onAliExpressPage();
     render(<PopupPage />);
     const control = await masterSwitch();
-    (document.activeElement as HTMLElement | null)?.blur();
+    // Wait for the popup's own focus, which would otherwise undo this blur.
+    await waitFor(() => {
+      expect(control).toHaveFocus();
+    });
+    control.blur();
 
     await userEvent.tab();
 

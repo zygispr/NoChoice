@@ -1,14 +1,6 @@
 import { LISTING_CONTAINERS } from '../../src/content/listings/listingContainers';
+import { BADGE_ASSET_IDS, CHOICE_ASSET_IDS } from './badgeAssets';
 
-// Deliberately not read from BADGE_SIGNATURES, so a wrong signature can't also skew the test input.
-const CHOICE_ASSET_IDS = [
-  'S135d2af8d57840b28092ceba069bdb6c4',
-  'S1887a285b60743859ac7bdbfca5e0896Z',
-];
-const BRAND_PLUS_ASSET_IDS = [
-  'Sca1bcdd1057c4a388af0eed405d9a464x',
-  'Sb008eb53e92f463eb0a2c17c539df530h',
-];
 const CHOICE_IMAGE = `https://ae-pic-a1.aliexpress-media.com/kf/${CHOICE_ASSET_IDS[0] ?? ''}/110x42.png`;
 
 const RESULTS_GRID = '#card-list';
@@ -50,7 +42,7 @@ export function sponsoredRowAllChoice(doc: Document): string {
 
 /** Changes every badge image to an asset ID the extension has never seen. */
 export function unknownMarkup(doc: Document): string {
-  for (const id of [...CHOICE_ASSET_IDS, ...BRAND_PLUS_ASSET_IDS]) {
+  for (const id of BADGE_ASSET_IDS) {
     for (const image of doc.querySelectorAll(`img[src*="${id}"]`)) {
       image.setAttribute('src', (image.getAttribute('src') ?? '').replace(id, 'Sunknownbadge'));
     }

@@ -66,5 +66,8 @@ venv/
 playwright-report/
 test-results/
 
+# Signed Firefox builds
+web-ext-artifacts/
+
 # Fixture screenshots: local aids for hand-labelling only (large; labels live in *.expected.json)
 tests/fixtures/aliexpress/*.png

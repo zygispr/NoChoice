@@ -4,15 +4,13 @@ import {
   isListingContainer,
   LISTING_CONTAINERS,
 } from '../../src/content/listings/listingContainers';
+import { BADGE_IMAGE_SELECTOR } from '../helpers/badgeAssets';
 import { listFixtures, loadFixture } from '../helpers/loadFixture';
-
-const BADGE_IMAGES =
-  'img[src*="S135d2af8d57840b28092ceba069bdb6c4"], img[src*="S1887a285b60743859ac7bdbfca5e0896Z"], img[src*="Sca1bcdd1057c4a388af0eed405d9a464x"], img[src*="Sb008eb53e92f463eb0a2c17c539df530h"]';
 
 describe('findListingRoot', () => {
   it.each(listFixtures())('finds the direct child of a container for badges in %s', (name) => {
     const doc = loadFixture(name);
-    const badges = [...doc.querySelectorAll(BADGE_IMAGES)];
+    const badges = [...doc.querySelectorAll(BADGE_IMAGE_SELECTOR)];
     expect(badges.length).toBeGreaterThan(0);
 
     for (const badge of badges) {
