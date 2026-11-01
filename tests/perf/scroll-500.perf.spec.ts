@@ -17,6 +17,7 @@ import {
 
 const SEARCH_URL = 'https://www.aliexpress.com/w/wholesale-phone-case.html';
 const LOAD_RUNS = 7;
+const WARM_UP_RUNS = 2;
 const SETTINGS_RUNS = 5;
 
 interface TraceEvent {
@@ -35,6 +36,17 @@ test('no long task comes from the content script while scrolling 500 cards', asy
   extensionId,
 }) => {
   serveHtml(SEARCH_URL, manyCards(parseFixture('search-com'), 500));
+  await page.goto(SEARCH_URL);
+  // AliExpress renders results as the shopper scrolls, so hold the cards back and feed them in the
+  // same way. Only that is traced: no real page delivers 500 cards in its first HTML.
+  await page.evaluate(() => {
+    const grid = document.querySelector('#card-list');
+    if (!grid) throw new Error('The page has no results grid');
+    const waiting = [...grid.children].slice(60);
+    for (const card of waiting) card.remove();
+    Object.assign(window, { waitingCards: waiting });
+  });
+
   const cdp = await context.newCDPSession(page);
   const events: TraceEvent[] = [];
   cdp.on('Tracing.dataCollected', ({ value }) => {
@@ -45,15 +57,11 @@ test('no long task comes from the content script while scrolling 500 cards', asy
     traceConfig: { includedCategories: ['devtools.timeline'] },
   });
 
-  await page.goto(SEARCH_URL);
-  // AliExpress renders results as the shopper scrolls, so feed the cards in the same way.
   await page.evaluate(async () => {
     const grid = document.querySelector('#card-list');
-    if (!grid) throw new Error('The page has no results grid');
-    const waiting = [...grid.children].slice(60);
-    for (const card of waiting) card.remove();
-    while (waiting.length > 0) {
-      grid.append(...waiting.splice(0, 60));
+    const { waitingCards } = window as unknown as { waitingCards: Element[] };
+    while (waitingCards.length > 0) {
+      grid?.append(...waitingCards.splice(0, 60));
       window.scrollTo(0, document.body.scrollHeight);
       await new Promise((resolve) => {
         requestAnimationFrame(resolve);
@@ -94,7 +102,7 @@ function recordUsable(): void {
   requestAnimationFrame(check);
 }
 
-async function medianUsableTime(context: BrowserContext, html: string): Promise<number> {
+async function serveAndRecord(context: BrowserContext, html: string): Promise<void> {
   await context.route('**/*', async (route) => {
     if (!route.request().url().startsWith('http')) {
       await route.fallback();
@@ -105,30 +113,40 @@ async function medianUsableTime(context: BrowserContext, html: string): Promise<
     }
   });
   await context.addInitScript(recordUsable);
+}
 
-  const times: number[] = [];
-  for (let run = 0; run < LOAD_RUNS; run++) {
-    const page = await context.newPage();
-    await page.goto(SEARCH_URL);
-    await page.waitForFunction(() => 'usableAt' in window);
-    times.push(await page.evaluate(() => (window as unknown as { usableAt: number }).usableAt));
-    await page.close();
-  }
-  return median(times);
+async function usableTime(context: BrowserContext): Promise<number> {
+  const page = await context.newPage();
+  await page.goto(SEARCH_URL);
+  await page.waitForFunction(() => 'usableAt' in window);
+  const time = await page.evaluate(() => (window as unknown as { usableAt: number }).usableAt);
+  await page.close();
+  return time;
 }
 
 test('the extension adds little to the time until results are usable (SC-004)', async ({
   context,
 }) => {
   const html = parseFixture('search-com').documentElement.outerHTML;
-  const withExtension = await medianUsableTime(context, html);
-
   const userDataDir = mkdtempSync(join(tmpdir(), 'nochoice-perf-'));
   const plain = await chromium.launchPersistentContext(userDataDir, { channel: 'chromium' });
   try {
-    const withoutExtension = await medianUsableTime(plain, html);
+    await serveAndRecord(context, html);
+    await serveAndRecord(plain, html);
+    // Warmed up and taken in turns, so a cold start or a change in machine load can't favour one.
+    for (let warmUp = 0; warmUp < WARM_UP_RUNS; warmUp++) {
+      await usableTime(context);
+      await usableTime(plain);
+    }
+    const withTimes: number[] = [];
+    const withoutTimes: number[] = [];
+    for (let run = 0; run < LOAD_RUNS; run++) {
+      withTimes.push(await usableTime(context));
+      withoutTimes.push(await usableTime(plain));
+    }
 
-    const overhead = withExtension - withoutExtension;
+    const withoutExtension = median(withoutTimes);
+    const overhead = median(withTimes) - withoutExtension;
     report('usable without the extension', withoutExtension, 'baseline');
     report(
       'overhead with the extension',

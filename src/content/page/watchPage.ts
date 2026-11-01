@@ -19,9 +19,7 @@ export function watchPage(doc: Document, callbacks: WatchPageCallbacks): { stop:
   const observer = new MutationObserver((records) => {
     const batch = new ListingBatch();
     for (const record of records) {
-      for (const node of record.addedNodes) {
-        if (node instanceof Element) batch.addNode(node);
-      }
+      batch.addNodesUnder(record.target, record.addedNodes);
       // A src change can bring a badge in. A removal can take one out when AliExpress reuses a
       // card for another product, and leaving the old mark would hide an unbadged listing.
       if (

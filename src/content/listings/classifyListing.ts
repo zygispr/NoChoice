@@ -24,6 +24,20 @@ export class ListingBatch {
   readonly #cards = new Set<Element>();
   readonly #nodesInCards = new Set<Element>();
 
+  /** Handles nodes added under `parent`. Inside a known card there is no need to read them at all. */
+  addNodesUnder(parent: Node, nodes: NodeList): void {
+    if (parent instanceof Element) {
+      if (this.#nodesInCards.has(parent)) return;
+      if (parent.parentElement && this.#nodesInCards.has(parent.parentElement)) {
+        this.#nodesInCards.add(parent);
+        return;
+      }
+    }
+    for (const node of nodes) {
+      if (node instanceof Element) this.addNode(node);
+    }
+  }
+
   /** Handles a node added to the page: a container, a card, part of a card, or a wrapper. */
   addNode(node: Element): void {
     if (node.parentElement && this.#nodesInCards.has(node.parentElement)) {
