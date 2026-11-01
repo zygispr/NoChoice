@@ -6,7 +6,7 @@ import { PageStatus } from '../../organisms/PageStatus';
 import { PopupLayout } from '../../templates/PopupLayout';
 
 export function PopupPage() {
-  const { settings, loaded, saveError, loadError, setEnabled } = useSettings();
+  const { settings, loaded, saveError, loadError, setEnabled, setBadgeHidden } = useSettings();
   const pageStatus = usePageStatus();
   const firstSwitchRef = useRef<HTMLButtonElement>(null);
 
@@ -30,6 +30,10 @@ export function PopupPage() {
             enabled={settings.enabled}
             onEnabledChange={(enabled) => {
               void setEnabled(enabled);
+            }}
+            hide={settings.hide}
+            onBadgeChange={(badge, hidden) => {
+              void setBadgeHidden(badge, hidden);
             }}
             saveError={saveError}
             loadError={loadError}

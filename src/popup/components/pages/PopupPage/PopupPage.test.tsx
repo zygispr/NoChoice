@@ -118,6 +118,76 @@ describe('PopupPage', () => {
     expect(await masterSwitch()).toBeInTheDocument();
   });
 
+  it('writes the complete settings when a badge switch is toggled', async () => {
+    onAliExpressPage();
+    render(<PopupPage />);
+
+    await userEvent.click(await screen.findByRole('switch', { name: 'Brand+' }));
+
+    const { settings } = await getFakeChrome().storage.local.get('settings');
+    expect(settings).toEqual({
+      version: 1,
+      enabled: true,
+      hide: { choice: true, brandPlus: false },
+    });
+    expect(await screen.findByRole('switch', { name: 'Brand+' })).not.toBeChecked();
+  });
+
+  it('brings back the per-badge choices after the master goes off and on', async () => {
+    onAliExpressPage();
+    render(<PopupPage />);
+    await userEvent.click(await screen.findByRole('switch', { name: 'Brand+' }));
+
+    await userEvent.click(await masterSwitch());
+    await waitFor(() => {
+      expect(screen.getByRole('switch', { name: 'Brand+' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+    });
+    expect(screen.getByRole('switch', { name: 'Brand+' })).not.toBeChecked();
+    expect(screen.getByRole('switch', { name: 'Choice' })).toBeChecked();
+
+    await userEvent.click(await masterSwitch());
+
+    const { settings } = await getFakeChrome().storage.local.get('settings');
+    expect(settings).toEqual({
+      version: 1,
+      enabled: true,
+      hide: { choice: true, brandPlus: false },
+    });
+    expect(screen.getByRole('switch', { name: 'Brand+' })).not.toHaveAttribute('aria-disabled');
+    expect(screen.getByRole('switch', { name: 'Brand+' })).not.toBeChecked();
+  });
+
+  it('reverts only the badge that failed to save, and explains beside it', async () => {
+    onAliExpressPage();
+    render(<PopupPage />);
+    const choice = await screen.findByRole('switch', { name: 'Choice' });
+    failNextSet(new Error('quota'));
+
+    await userEvent.click(choice);
+
+    await waitFor(() => {
+      expect(choice).toHaveAccessibleDescription("Couldn't save this setting. Please try again.");
+    });
+    expect(choice).toBeChecked();
+    expect(await masterSwitch()).not.toHaveAccessibleDescription();
+  });
+
+  it('tabs from the master switch to the badge switches', async () => {
+    onAliExpressPage();
+    render(<PopupPage />);
+    await waitFor(async () => {
+      expect(await masterSwitch()).toHaveFocus();
+    });
+
+    await userEvent.tab();
+    expect(screen.getByRole('switch', { name: 'Choice' })).toHaveFocus();
+    await userEvent.tab();
+    expect(screen.getByRole('switch', { name: 'Brand+' })).toHaveFocus();
+  });
+
   it('has no accessibility violations', async () => {
     onAliExpressPage();
     const { container } = render(<PopupPage />);

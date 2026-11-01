@@ -159,15 +159,15 @@ Single package at repo root: `src/{shared,content,popup}/`, `tests/{fixtures,hel
 
 ### Tests for User Story 3 ⚠️ write first, observe failing
 
-- [ ] T070 [P] [US3] Extend `src/popup/components/organisms/BadgeSettingsPanel/BadgeSettingsPanel.test.tsx`: renders per-badge switches labelled "Choice" and "Brand+" after the master switch; each calls `onBadgeChange(badge, value)`; while the master is off they are **disabled but keep their values** ("disabled (but keep their values) while the master switch is off"); tab order master → Choice → Brand+; 0 axe violations
-- [ ] T071 [P] [US3] Extend `src/popup/components/pages/PopupPage/PopupPage.test.tsx`: toggling Brand+ off writes `{ ..., hide: { choice: true, brandPlus: false } }`; turning the master off and on again brings back the previous per-badge selection (data-model: "The master switch keeps the per-badge choices")
-- [ ] T072 [P] [US3] Write the E2E acceptance test `tests/e2e/us3-per-badge.spec.ts` (fixture `home-com`, which contains both badge types): Scenario 1, defaults hide both; Scenario 2, Brand+ off in the popup → within 1 s Choice cards hidden and Brand+ cards visible, and the popup count/breakdown shows only Choice; Scenario 3, with the page left open, Choice off and Brand+ on → the page reflects it without a reload, then `relaunch()` → selection kept. Also: a card carrying both badges stays hidden while either of its badges is selected
+- [X] T070 [P] [US3] Extend `src/popup/components/organisms/BadgeSettingsPanel/BadgeSettingsPanel.test.tsx`: renders per-badge switches labelled "Choice" and "Brand+" after the master switch; each calls `onBadgeChange(badge, value)`; while the master is off they are **disabled but keep their values** ("disabled (but keep their values) while the master switch is off"); tab order master → Choice → Brand+; 0 axe violations
+- [X] T071 [P] [US3] Extend `src/popup/components/pages/PopupPage/PopupPage.test.tsx`: toggling Brand+ off writes `{ ..., hide: { choice: true, brandPlus: false } }`; turning the master off and on again brings back the previous per-badge selection (data-model: "The master switch keeps the per-badge choices")
+- [X] T072 [P] [US3] Write the E2E acceptance test `tests/e2e/us3-per-badge.spec.ts` (fixture `home-com`, which contains both badge types): Scenario 1, defaults hide both; Scenario 2, Brand+ off in the popup → within 1 s Choice cards hidden and Brand+ cards visible, and the popup count/breakdown shows only Choice; Scenario 3, with the page left open, Choice off and Brand+ on → the page reflects it without a reload, then `relaunch()` → selection kept. Also: a card carrying both badges stays hidden while either of its badges is selected
 
 ### Implementation for User Story 3
 
-- [ ] T073 [US3] Add per-badge `SettingRow`s to `src/popup/components/organisms/BadgeSettingsPanel/BadgeSettingsPanel.tsx` (iterate `BADGE_TYPES`, labels from `BADGE_LABELS`, `disabled={!enabled}`, per-row `saveError`) and its `.module.scss` (indent the per-badge rows under the master) (makes T070 pass)
-- [ ] T074 [US3] Wire `setBadgeHidden` from `useSettings` into `BadgeSettingsPanel` in `src/popup/components/pages/PopupPage/PopupPage.tsx` (makes T071 pass)
-- [ ] T075 [US3] Make all US3 tests pass (`npm test`, `npx playwright test tests/e2e/us3-*`), confirm the US1 and US2 tests still pass, then run [quickstart V8](./quickstart.md#validation-scenarios) by hand
+- [X] T073 [US3] Add per-badge `SettingRow`s to `src/popup/components/organisms/BadgeSettingsPanel/BadgeSettingsPanel.tsx` (iterate `BADGE_TYPES`, labels from `BADGE_LABELS`, `disabled={!enabled}`, per-row `saveError`) and its `.module.scss` (indent the per-badge rows under the master) (makes T070 pass)
+- [X] T074 [US3] Wire `setBadgeHidden` from `useSettings` into `BadgeSettingsPanel` in `src/popup/components/pages/PopupPage/PopupPage.tsx` (makes T071 pass)
+- [X] T075 [US3] Make all US3 tests pass (`npm test`, `npx playwright test tests/e2e/us3-*`), confirm the US1 and US2 tests still pass, then run [quickstart V8](./quickstart.md#validation-scenarios) by hand. Done on 2026-11-01 with an automated browser on live AliExpress rather than by hand, in both card layouts and across a restart
 
 **Checkpoint**: all user stories work on their own.
 
