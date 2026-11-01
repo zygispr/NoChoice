@@ -1,0 +1,48 @@
+@use '../../../../shared/styles/tokens' as *;
+
+$track-width: 40px;
+$track-height: 24px;
+$knob-size: 18px;
+$knob-inset: 3px;
+
+// Meets the 24 × 24 px target size of WCAG 2.2. State shows in the knob position as well as colour.
+.switch {
+  @include focus-ring;
+  position: relative;
+  flex: none;
+  width: $track-width;
+  height: $track-height;
+  padding: 0;
+  border: 0;
+  border-radius: $radius-pill;
+  background: $color-border;
+  cursor: pointer;
+
+  &[aria-checked='true'] {
+    background: $color-accent;
+  }
+
+  &[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.knob {
+  position: absolute;
+  top: $knob-inset;
+  left: $knob-inset;
+  width: $knob-size;
+  height: $knob-size;
+  border-radius: 50%;
+  background: $color-surface;
+  transition: transform 100ms ease-out;
+
+  [aria-checked='true'] > & {
+    transform: translateX($track-width - $knob-size - 2 * $knob-inset);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}

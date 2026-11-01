@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Generic price tag (with its string hole cut out), struck through: "no tagged listings". -->
+  <path fill="#334155" fill-rule="evenodd"
+    d="M66 12h46a4 4 0 0 1 4 4v46a8 8 0 0 1-2.3 5.7l-47 47a8 8 0 0 1-11.4 0L13.3 72.7a8 8 0 0 1 0-11.4l47-47A8 8 0 0 1 66 12ZM94 24a10 10 0 1 0 0 20a10 10 0 1 0 0-20Z"/>
+  <line x1="16" y1="16" x2="112" y2="112" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/>
+  <line x1="16" y1="16" x2="112" y2="112" stroke="#dc2626" stroke-width="14" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,4 @@
+// Reserves room for the loading state, so the popup doesn't jump when the status arrives.
+.status {
+  min-height: 42px;
+}

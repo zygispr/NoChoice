@@ -1,0 +1,20 @@
+@use '../../../../shared/styles/tokens' as *;
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+}
+
+.label {
+  color: $color-text;
+  font-size: $font-size-md;
+}
+
+.error {
+  margin: $space-1 0 0;
+  color: $color-error;
+  font-size: $font-size-sm;
+  line-height: $line-height;
+}

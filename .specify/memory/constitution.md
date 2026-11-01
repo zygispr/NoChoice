@@ -18,9 +18,20 @@ Code is written for the next person who reads it, not for the compiler.
   reference a tracked issue.
 - Errors MUST be handled explicitly at the boundary where they can be acted on; silently
   swallowed errors are forbidden.
+- Code MUST follow the established conventions of its language, framework, and platform
+  (official style guides, idiomatic patterns, and the APIs the framework recommends) and
+  the existing conventions of the surrounding code (naming, file layout, structure, error
+  handling). Where the two conflict, the codebase convention wins until it is changed
+  deliberately across the whole codebase, so no file mixes two styles.
+- Widely accepted best practices, including the platform's documented security,
+  accessibility, and API guidance, MUST be followed by default. A deliberate deviation MUST
+  be justified in an inline comment or in the plan's Complexity Tracking table.
+- Conventions that a tool can check SHOULD be enforced by the formatter, linter, or type
+  checker configuration rather than by code review alone.
 
 **Rationale**: Code is read far more often than it is written. Readable, consistent code
-lowers the cost of every future change, review, and bug fix.
+that follows familiar conventions lowers the cost of every future change, review, and bug
+fix, and lets any contributor rely on what they already know.
 
 ### II. Simplicity Over Complexity
 
@@ -141,7 +152,8 @@ These defaults apply unless a feature plan sets stricter, documented targets.
 - **Small, focused changes**: changes SHOULD be small enough to review in one sitting and
   MUST address a single concern.
 - **Code review**: every change MUST be reviewed before merge. Reviewers MUST verify
-  readability, simplicity, test coverage, UX acceptance criteria, and performance budgets.
+  readability, adherence to conventions and best practices, simplicity, test coverage, UX
+  acceptance criteria, and performance budgets.
 - **Merge gate**: a change merges only when CI is green (build, lint, type check, tests,
   performance checks where defined) and review is approved.
 - **Definition of done**: acceptance scenarios pass, documentation for changed behavior is
@@ -165,4 +177,4 @@ These defaults apply unless a feature plan sets stricter, documented targets.
 - Runtime development guidance for agents lives in `CLAUDE.md` (when present) and MUST NOT
   contradict this constitution.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-31 | **Last Amended**: 2026-10-31
+**Version**: 1.1.0 | **Ratified**: 2026-10-31 | **Last Amended**: 2026-11-01

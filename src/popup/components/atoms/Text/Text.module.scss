@@ -1,0 +1,24 @@
+@use '../../../../shared/styles/tokens' as *;
+
+.body,
+.muted,
+.strong {
+  margin: 0;
+  font-size: $font-size-md;
+  line-height: $line-height;
+}
+
+.body {
+  color: $color-text;
+}
+
+.muted {
+  color: $color-text-muted;
+  font-size: $font-size-sm;
+}
+
+.strong {
+  color: $color-text;
+  font-size: $font-size-lg;
+  font-weight: 700;
+}

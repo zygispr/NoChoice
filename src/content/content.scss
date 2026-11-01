@@ -1,0 +1,6 @@
+// The only rules the extension applies to AliExpress pages (contracts/page-dom.md § Stylesheet rules).
+// Cards are hidden only when their classified badge is in the <html> hidden set.
+html[data-nochoice-hide~='choice'] [data-nochoice-badges~='choice'],
+html[data-nochoice-hide~='brand-plus'] [data-nochoice-badges~='brand-plus'] {
+  display: none !important;
+}
