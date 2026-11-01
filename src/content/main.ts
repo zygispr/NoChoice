@@ -1,12 +1,14 @@
 // Content-script entry, injected into AliExpress pages at document_start (see public/manifest.json).
-import { effectiveHiddenBadges, DEFAULT_SETTINGS } from '../shared/settings';
-import { readSettings } from '../shared/settingsStore';
+import { buildStatusMessage } from '../shared/messages';
+import { DEFAULT_SETTINGS, effectiveHiddenBadges } from '../shared/settings';
 import './content.scss';
 import { removeAllHiddenNotices, updateAllHiddenNotices } from './notice/allHiddenNotice';
 import { applyHiding } from './page/applySettings';
+import { followSettings } from './page/followSettings';
 import { countHidden } from './page/hiddenCount';
 import { createPageState } from './page/pageState';
 import { watchPage } from './page/watchPage';
+import { startStatusPort } from './statusPort';
 
 const html = document.documentElement;
 const pageState = createPageState();
@@ -16,33 +18,39 @@ const pageState = createPageState();
 let hiddenBadges = effectiveHiddenBadges(DEFAULT_SETTINGS);
 applyHiding(html, hiddenBadges, pageState.revealed);
 
+const currentCounts = () => countHidden(document, hiddenBadges, pageState.revealed);
+
+const notifyChanged = startStatusPort(() =>
+  buildStatusMessage(currentCounts(), pageState.revealed),
+);
+
 function revealPage(): void {
   pageState.reveal();
   applyHiding(html, hiddenBadges, pageState.revealed);
   removeAllHiddenNotices(document);
+  notifyChanged();
 }
 
 function refreshNotices(): void {
-  const { fullyHiddenContainers } = countHidden(document, hiddenBadges, pageState.revealed);
-  updateAllHiddenNotices(fullyHiddenContainers, hiddenBadges, revealPage);
+  updateAllHiddenNotices(currentCounts().fullyHiddenContainers, hiddenBadges, revealPage);
 }
 
-readSettings()
-  .then((settings) => {
-    hiddenBadges = effectiveHiddenBadges(settings);
-    applyHiding(html, hiddenBadges, pageState.revealed);
-    refreshNotices();
-  })
-  .catch((error: unknown) => {
-    // Fail-safe: keep the defaults already applied and never throw into the page.
-    console.debug('NoChoice: could not read settings', error);
-  });
+followSettings((settings) => {
+  hiddenBadges = effectiveHiddenBadges(settings);
+  applyHiding(html, hiddenBadges, pageState.revealed);
+  refreshNotices();
+  notifyChanged();
+});
 
 watchPage(document, {
   onPageKeyChange: (pageKey) => {
     pageState.onNavigate(pageKey);
     applyHiding(html, hiddenBadges, pageState.revealed);
     removeAllHiddenNotices(document);
+    notifyChanged();
   },
-  onBatchProcessed: refreshNotices,
+  onBatchProcessed: () => {
+    refreshNotices();
+    notifyChanged();
+  },
 });

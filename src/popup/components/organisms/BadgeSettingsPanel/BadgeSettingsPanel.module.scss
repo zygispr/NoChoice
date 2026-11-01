@@ -1,0 +1,14 @@
+@use '../../../../shared/styles/tokens' as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+
+.error {
+  margin: 0;
+  color: $color-error;
+  font-size: $font-size-sm;
+  line-height: $line-height;
+}

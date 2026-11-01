@@ -31,6 +31,8 @@ export interface ExtensionFixtures {
   openPopup: (tabId?: number) => Promise<Page>;
   /** Closes the browser and reopens it on the same profile, as a browser restart would. */
   relaunch: () => Promise<BrowserContext>;
+  /** Chrome's tab ID for a page, for pointing the popup at it through `openPopup(tabId)`. */
+  tabIdOf: (page: Page) => Promise<number>;
   /** Fails if the extension made any network request of its own (FR-017, SC-007). */
   assertNoExtensionNetworkActivity: () => void;
   /** Keys in `chrome.storage.local`, read from an extension page. */
@@ -172,6 +174,26 @@ export const test = base.extend<ExtensionFixtures & { session: ExtensionSession 
 
   relaunch: async ({ session }, use) => {
     await use(() => session.relaunch());
+  },
+
+  tabIdOf: async ({ session, extensionId }, use) => {
+    await use(async (page) => {
+      const probe = await session.context.newPage();
+      try {
+        await probe.goto(`chrome-extension://${extensionId}/${POPUP_PATH}`);
+        // Tab URLs are hidden on sites without host permissions, so find the tab by bringing it to
+        // the front rather than by its address.
+        await page.bringToFront();
+        const tabId = await probe.evaluate(async () => {
+          const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+          return tab?.id;
+        });
+        if (tabId === undefined) throw new Error('The page has no tab');
+        return tabId;
+      } finally {
+        await probe.close();
+      }
+    });
   },
 
   assertNoExtensionNetworkActivity: async ({ session, extensionId }, use) => {
